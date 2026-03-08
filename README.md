@@ -1,22 +1,48 @@
 # E-Commerce Backend (Spring Boot)
 
-A simplified e-commerce backend built with **Spring Boot** that demonstrates core backend engineering concepts such as REST API design, layered architecture, database relationships, and design patterns.
+A simplified **E-commerce backend** built with **Spring Boot** demonstrating core backend engineering concepts such as:
 
-This project models a small e-commerce system where products are organized into categories, customers can create orders, and orders can be paid using different payment strategies.
+- REST API design
+- Layered architecture
+- JWT authentication
+- Database modeling with JPA
+- Design patterns in backend systems
+
+The system models a small e-commerce platform where products belong to categories, customers can create orders, and orders can be paid using different payment strategies.
 
 ---
 
 # Features
 
-- Product management
-- Category hierarchy with subcategories
-- Order creation with multiple products
+### Authentication & Security
+- User registration
+- Secure login using **JWT authentication**
+- Password hashing with **BCrypt**
+- Protected API endpoints using **Spring Security**
+
+### Product Management
+- Create and manage products
+- Product pricing and stock handling
+- Products organized into categories
+
+### Category System
+- Category hierarchy
+- Products assigned to categories
+
+### Orders
+- Create orders containing multiple products
 - Order items with quantities
-- Payment processing using the **Strategy Pattern**
-- Order status updates after payment
+- Order status updates
+
+### Payment System
+- Payment processing implemented using the **Strategy Pattern**
+- Support for multiple payment methods
+
+### Backend Architecture
+- Clean layered architecture
 - RESTful API design
+- DTO-based request handling
 - PostgreSQL database integration
-- Layered Spring Boot architecture
 
 ---
 
@@ -28,26 +54,92 @@ The project follows a standard **Spring Boot layered architecture**:
 Controller → Service → Repository → Database
 ```
 
-- **Controller**  
-  Handles HTTP requests and responses.
+### Controller
+Handles incoming HTTP requests and responses.
 
-- **Service**  
-  Contains business logic such as order creation and payment processing.
+### Service
+Contains business logic such as:
+- Order creation
+- Payment processing
+- Product management
 
-- **Repository**  
-  Uses Spring Data JPA to interact with the database.
+### Repository
+Handles database operations using **Spring Data JPA**.
 
-- **Entity**  
-  Represents the domain model stored in the database.
+### Entity
+Represents database tables.
 
-- **DTO**  
-  Used for request objects and API communication.
+### DTO
+Used for request and response objects.
+
+### Security Layer
+Handles authentication and authorization using **JWT and Spring Security**.
 
 ---
 
+# Project Structure
+
+```
+src/main/java/com/example/e_commerce
+
+config
+ └── SecurityConfig
+
+controller
+ ├── AuthController
+ ├── ProductController
+ ├── OrderController
+ ├── PaymentController
+ ├── CategoryController
+ └── TestController
+
+dto
+ ├── CardPaymentRequest
+ ├── LoginRequest
+ ├── OrderItemRequest
+ ├── OrderRequest
+ ├── PaymentRequest
+ ├── PaymentResult
+ ├── PayPalPaymentRequest
+ ├── ProductRequest
+ ├── ProductResponse
+ └── RegistrationRequest
+
+entity
+ ├── Category
+ ├── Order
+ ├── OrderItem
+ ├── OrderStatus
+ ├── Product
+ ├── Role
+ └── User
+
+payment
+ ├── PaymentStrategy
+ ├── CardPaymentStrategy
+ └── PayPalPaymentStrategy
+
+repository
+ ├── CategoryRepository
+ ├── OrderItemRepository
+ ├── OrderRepository
+ ├── ProductRepository
+ └── UserRepository
+
+service
+ ├── CategoryService
+ ├── OrderService
+ ├── PaymentService
+ └── ProductService
+
+security
+ ├── JwtService
+ └── JwtAuthenticationFilter
+```
+
 # Domain Model
 
-The core entities in the system are:
+Core entities in the system:
 
 ```
 Category
@@ -56,17 +148,23 @@ Category
 Order
  └── OrderItem
       └── Product
+
+User
+ └── Order
 ```
 
-Orders contain multiple order items, and each order item references a product and its quantity.
+### Relationships
+
+- A **Category** contains multiple **Products**
+- An **Order** contains multiple **OrderItems**
+- Each **OrderItem** references a **Product**
+- A **User** can create multiple **Orders**
 
 ---
 
 # Payment Design (Strategy Pattern)
 
 Payment processing is implemented using the **Strategy Pattern**.
-
-This allows different payment types to be added without modifying existing business logic.
 
 ```
 PaymentStrategy
@@ -75,6 +173,8 @@ PaymentStrategy
 ```
 
 The system dynamically selects the correct payment strategy depending on the payment type.
+
+This allows new payment methods to be added without modifying existing business logic.
 
 ---
 
@@ -94,7 +194,7 @@ Process Payment
 Update Order Status
 ```
 
-Order statuses include:
+### Order Status
 
 ```
 CREATED
@@ -104,19 +204,81 @@ FAILED
 
 ---
 
+# Authentication Flow (JWT)
+
+```
+Register User
+      ↓
+Login
+      ↓
+Receive JWT Token
+      ↓
+Send Token in Authorization Header
+      ↓
+Access Protected Endpoints
+```
+
+Example header:
+
+```
+Authorization: Bearer <jwt_token>
+```
+
+---
+
 # Tech Stack
 
 - Java 21
 - Spring Boot
+- Spring Security
+- JWT (JSON Web Tokens)
 - Spring Web
 - Spring Data JPA
 - PostgreSQL
 - Maven
-- Jackson (JSON serialization)
+- Jackson
 
 ---
 
 # Example API Endpoints
+
+### Register User
+
+```
+POST /api/auth/register
+```
+
+Example request:
+
+```json
+{
+  "username": "john",
+  "email": "john@email.com",
+  "password": "123456"
+}
+```
+
+---
+
+### Login
+
+```
+POST /api/auth/login
+```
+
+Returns a JWT token.
+
+---
+
+### Get Products
+
+```
+GET /api/products
+```
+
+Requires authentication.
+
+---
 
 ### Create Order
 
@@ -175,13 +337,15 @@ Example request:
 
 # Running the Project
 
-### 1. Clone the repository
+### Clone the repository
 
 ```
-git clone https://github.com/your-username/ecommerce-backend.git
+git clone https://github.com/Thilak-shelby/E-commerce-application.git
 ```
 
-### 2. Configure PostgreSQL database in `application.properties`
+### Configure PostgreSQL
+
+Update `application.properties`:
 
 ```
 spring.datasource.url=jdbc:postgresql://localhost:5432/ecommerce
@@ -189,13 +353,13 @@ spring.datasource.username=postgres
 spring.datasource.password=yourpassword
 ```
 
-### 3. Run the application
+### Run the application
 
 ```
 mvn spring-boot:run
 ```
 
-The API will start on:
+The API will start at:
 
 ```
 http://localhost:8080
@@ -209,6 +373,7 @@ This project was built to practice:
 
 - Spring Boot backend development
 - REST API design
+- JWT authentication
 - Database modeling with JPA
 - Layered architecture
 - Design patterns in backend systems
@@ -219,15 +384,16 @@ This project was built to practice:
 
 Possible extensions for the project:
 
-- Authentication and user accounts
 - Shopping cart functionality
-- Pagination for products
+- Product search and filtering
+- Pagination
 - Global exception handling
-- DTO response mapping
+- API documentation with **Swagger / OpenAPI**
 - Payment transaction persistence
+- Role-based authorization (ADMIN / CUSTOMER)
 
 ---
 
 # Author
 
-Backend project built as a learning exercise to practice modern Java backend development using Spring Boot.
+Backend project built as a learning exercise for modern **Java backend development using Spring Boot**.
