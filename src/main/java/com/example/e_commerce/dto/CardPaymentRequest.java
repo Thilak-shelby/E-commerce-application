@@ -14,22 +14,27 @@ public class CardPaymentRequest extends PaymentRequest {
     private String expiry;
 
     public String getCardNumber() {
+
         return cardNumber;
     }
 
     public void setCardNumber(String cardNumber) {
+
         this.cardNumber = cardNumber;
     }
 
     public String getCvv() {
+
         return cvv;
     }
 
     public void setCvv(String cvv) {
+
         this.cvv = cvv;
     }
 
     public String getExpiry() {
+
         return expiry;
     }
 

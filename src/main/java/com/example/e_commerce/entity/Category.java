@@ -21,7 +21,6 @@ public class Category {
 
     // ---------------- PRODUCTS IN CATEGORY ----------------
     @OneToMany(mappedBy = "category")
-    @JsonIgnore   // prevents infinite recursion
     private List<Product> products = new ArrayList<>();
 
     // ---------------- PARENT CATEGORY ----------------
@@ -34,6 +33,7 @@ public class Category {
     @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL)
     private List<Category> subCategories = new ArrayList<>();
 
+    // Constructor
     public Category() {}
 
     public Category(String name) {
@@ -42,35 +42,43 @@ public class Category {
 
     // ---------------- GETTERS ----------------
     public Long getId() {
+
         return id;
     }
 
     public String getName() {
+
         return name;
     }
 
     public List<Product> getProducts() {
+
         return products;
     }
 
     public Category getParentCategory() {
+
         return parentCategory;
     }
 
     public List<Category> getSubCategories() {
+
         return subCategories;
     }
 
     // ---------------- SETTERS ----------------
     public void setName(String name) {
+
         this.name = name;
     }
 
     public void setProducts(List<Product> products) {
+
         this.products = products;
     }
 
     public void setParentCategory(Category parentCategory) {
+
         this.parentCategory = parentCategory;
     }
 

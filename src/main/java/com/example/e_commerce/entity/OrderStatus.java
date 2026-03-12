@@ -1,7 +1,8 @@
 package com.example.e_commerce.entity;
 
 public enum OrderStatus {
-    CREATED,
+    PENDING,
     PAID,
-    FAILED
+    FAILED,
+    CANCELLED
 }

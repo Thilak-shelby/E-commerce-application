@@ -34,14 +34,31 @@ public class ProductService {
                         ))
                 .toList();
     }
-    public Product createProduct(ProductRequest request) {
+
+    public ProductResponse createProduct(ProductRequest request) {
+
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
 
         Product product = new Product(
                 request.getName(),
                 request.getPrice()
         );
 
-        return productRepository.save(product);
+        if (!category.getSubCategories().isEmpty()) {
+            throw new RuntimeException("Cannot add product to parent category");
+        }
+
+        product.setCategory(category);
+
+        Product saved = productRepository.save(product);
+
+        return new ProductResponse(
+                saved.getId(),
+                saved.getName(),
+                saved.getPrice(),
+                saved.getCategory().getName()
+        );
     }
 
     public Product assignCategory(Long productId, Long categoryId) {
@@ -55,5 +72,9 @@ public class ProductService {
         product.setCategory(category);
 
         return productRepository.save(product);
+    }
+
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
     }
 }

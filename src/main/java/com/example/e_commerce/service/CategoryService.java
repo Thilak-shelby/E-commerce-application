@@ -24,6 +24,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
+    // Add subcategory
     public Category addSubCategory(Long parentId, String name) {
 
         Category parent = categoryRepository.findById(parentId)
@@ -31,15 +32,14 @@ public class CategoryService {
                         new RuntimeException("Parent category not found"));
 
         Category subCategory = new Category(name);
-
         subCategory.setParentCategory(parent);
 
         return categoryRepository.save(subCategory);
     }
 
-    // Fetch all categories
+    // Fetch root categories (with nested subcategories)
     public List<Category> getCategories() {
-        return categoryRepository.findAll();
+        return categoryRepository.findByParentCategoryIsNull();
     }
 
     // Fetch products belonging to a category
@@ -49,15 +49,15 @@ public class CategoryService {
                 .orElseThrow(() ->
                         new RuntimeException("Category not found"));
 
-        // Hibernate loads products automatically here
         return category.getProducts()
                 .stream()
-                .map(product -> mapToResponse(product))
+                .map(this::mapToResponse)
                 .toList();
     }
 
-    // Helper mapper method
+    // Product mapper
     private ProductResponse mapToResponse(Product product) {
+
         return new ProductResponse(
                 product.getId(),
                 product.getName(),
@@ -66,9 +66,5 @@ public class CategoryService {
                         ? product.getCategory().getName()
                         : null
         );
-    }
-
-    public void deleteCategory(Long id) {
-        categoryRepository.deleteById(id);
     }
 }

@@ -1,16 +1,15 @@
 package com.example.e_commerce.controller;
 
-import com.example.e_commerce.dto.CardPaymentRequest;
-import com.example.e_commerce.dto.OrderRequest;
-import com.example.e_commerce.dto.PayPalPaymentRequest;
-import com.example.e_commerce.dto.PaymentRequest;
 import com.example.e_commerce.entity.Order;
 import com.example.e_commerce.service.OrderService;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api/orders")
 public class OrderController {
 
     private final OrderService orderService;
@@ -19,24 +18,25 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping
-    public Order createOrder(@RequestBody OrderRequest request) {
-        return orderService.createOrder(request);
+    // Get order by id
+    @GetMapping("/{id}")
+    public Order getOrder(@PathVariable Long id) {
+        return orderService.getOrder(id);
     }
 
-    @PostMapping("/{orderId}/pay/card")
-    public Order payWithCard(
-            @PathVariable Long orderId,
-            @RequestBody CardPaymentRequest request) {
+    // Get orders of logged-in user
+    @GetMapping("/my-orders")
+    public List<Order> getUserOrders(Authentication authentication) {
 
-        return orderService.payOrder(orderId, "CARD", request);
+        String email = authentication.getName();
+
+        return orderService.getUserOrders(email);
     }
 
-    @PostMapping("/{orderId}/pay/paypal")
-    public Order payWithPaypal(
-            @PathVariable Long orderId,
-            @RequestBody PayPalPaymentRequest request) {
-
-        return orderService.payOrder(orderId, "PAYPAL", request);
+    // Cancel order
+    @PutMapping("/{id}/cancel")
+    public Order cancelOrder(@PathVariable Long id) {
+        return orderService.cancelOrder(id);
     }
+
 }

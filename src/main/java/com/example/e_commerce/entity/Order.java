@@ -1,6 +1,8 @@
 package com.example.e_commerce.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,14 +20,22 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    private final LocalDateTime createdAt;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @ManyToOne
+    private User user;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
-    public Order() {
-        this.createdAt = LocalDateTime.now();
-        this.status = OrderStatus.CREATED;
+    // Required by JPA
+    protected Order() {}
+
+    // Constructor for creating orders
+    public Order(User user) {
+        this.user = user;
+        this.status = OrderStatus.PENDING;
     }
 
     public Long getId() {
@@ -54,5 +64,23 @@ public class Order {
 
     public List<OrderItem> getItems() {
         return items;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void addItem(Product product, int quantity) {
+
+        for (OrderItem item : items) {
+
+            if (item.getProduct().getId().equals(product.getId())) {
+                item.setQuantity(item.getQuantity() + quantity);
+                return;
+            }
+        }
+
+        OrderItem newItem = new OrderItem(product, quantity, product.getPrice(), this);
+        items.add(newItem);
     }
 }

@@ -1,15 +1,13 @@
 package com.example.e_commerce.controller;
 
 import com.example.e_commerce.dto.CardPaymentRequest;
-import com.example.e_commerce.dto.PayPalPaymentRequest;
-import com.example.e_commerce.dto.PaymentRequest;
+import com.example.e_commerce.dto.PaypalPaymentRequest;
 import com.example.e_commerce.dto.PaymentResult;
 import com.example.e_commerce.service.PaymentService;
-import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/payments")
+@RequestMapping("/api/payments")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -18,13 +16,19 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    @PostMapping("/card")
-    public PaymentResult payWithCard(@Valid @RequestBody CardPaymentRequest request) {
-        return paymentService.processPayment("CARD", request);
+    @PostMapping("/orders/{orderId}/card")
+    public PaymentResult payWithCard(
+            @PathVariable Long orderId,
+            @RequestBody CardPaymentRequest request) {
+
+        return paymentService.processPayment(orderId, "CARD", request);
     }
 
-    @PostMapping("/paypal")
-    public PaymentResult payWithPaypal(@Valid @RequestBody PayPalPaymentRequest request) {
-        return paymentService.processPayment("PAYPAL", request);
+    @PostMapping("/orders/{orderId}/paypal")
+    public PaymentResult payWithPaypal(
+            @PathVariable Long orderId,
+            @RequestBody PaypalPaymentRequest request) {
+
+        return paymentService.processPayment(orderId, "PAYPAL", request);
     }
 }

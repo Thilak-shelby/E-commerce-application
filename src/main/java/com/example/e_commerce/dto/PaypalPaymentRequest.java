@@ -2,7 +2,7 @@ package com.example.e_commerce.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class PayPalPaymentRequest extends PaymentRequest {
+public class PaypalPaymentRequest extends PaymentRequest {
 
     @NotBlank
     private String email;

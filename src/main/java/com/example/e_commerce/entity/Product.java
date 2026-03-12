@@ -19,7 +19,7 @@ public class Product {
     @JsonIgnore
     private Category category;
 
-    public Product() {}
+    protected Product() {}
 
     public Product(String name, double price) {
         this.name = name;

@@ -1,75 +1,57 @@
 package com.example.e_commerce.service;
 
-import com.example.e_commerce.dto.OrderRequest;
-import com.example.e_commerce.dto.OrderItemRequest;
-import com.example.e_commerce.dto.PaymentRequest;
-import com.example.e_commerce.dto.PaymentResult;
 import com.example.e_commerce.entity.Order;
-import com.example.e_commerce.entity.OrderItem;
 import com.example.e_commerce.entity.OrderStatus;
-import com.example.e_commerce.entity.Product;
+import com.example.e_commerce.entity.User;
 import com.example.e_commerce.repository.OrderRepository;
-import com.example.e_commerce.repository.ProductRepository;
+import com.example.e_commerce.repository.UserRepository;
 
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
-    private final PaymentService paymentService;
+    private final UserRepository userRepository;
 
-    public OrderService(OrderRepository orderRepository, ProductRepository productRepository,
-                        PaymentService paymentService) {
+    public OrderService(OrderRepository orderRepository,
+                        UserRepository userRepository) {
+
         this.orderRepository = orderRepository;
-        this.productRepository = productRepository;
-        this.paymentService = paymentService;
-
+        this.userRepository = userRepository;
     }
 
-    public Order createOrder(OrderRequest request) {
+    // Get single order
+    public Order getOrder(Long orderId) {
 
-        Order order = new Order();
-
-        double total = 0;
-
-        for (OrderItemRequest itemRequest : request.getItems()) {
-
-            Product product = productRepository.findById(itemRequest.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
-
-            OrderItem item = new OrderItem();
-            item.setProduct(product);
-            item.setQuantity(itemRequest.getQuantity());
-            item.setPrice(product.getPrice());
-            item.setOrder(order);
-
-            order.getItems().add(item);
-
-            total += product.getPrice() * itemRequest.getQuantity();
-        }
-
-        order.setTotalAmount(total);
-
-        return orderRepository.save(order);
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
-    public Order payOrder(Long orderId,
-                          String paymentType,
-                          PaymentRequest request) {
+    // Get orders of logged in user
+    public List<Order> getUserOrders(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return orderRepository.findByUser(user);
+    }
+
+    // Cancel order
+    public Order cancelOrder(Long orderId) {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        PaymentResult result = paymentService.processPayment(paymentType, request);
-
-        if (result.isSuccess()) {
-            order.setStatus(OrderStatus.PAID);
-        } else {
-            order.setStatus(OrderStatus.FAILED);
+        if (order.getStatus() == OrderStatus.PAID) {
+            throw new RuntimeException("Cannot cancel a paid order");
         }
+
+        order.setStatus(OrderStatus.CANCELLED);
 
         return orderRepository.save(order);
     }
+
 }
