@@ -1,48 +1,62 @@
 # E-Commerce Backend (Spring Boot)
 
-A simplified **E-commerce backend** built with **Spring Boot** demonstrating core backend engineering concepts such as:
+A simplified **E-commerce backend** built with **Spring Boot** demonstrating core backend engineering concepts including:
 
-- REST API design
-- Layered architecture
-- JWT authentication
-- Database modeling with JPA
-- Design patterns in backend systems
+* REST API design
+* Layered backend architecture
+* JWT authentication
+* Database modeling with JPA
+* Strategy design pattern for payment processing
+* Order checkout workflow
 
-The system models a small e-commerce platform where products belong to categories, customers can create orders, and orders can be paid using different payment strategies.
+The system models a small e-commerce platform where users can browse products, add them to a cart, create orders, and pay using different payment strategies.
 
 ---
 
 # Features
 
-### Authentication & Security
-- User registration
-- Secure login using **JWT authentication**
-- Password hashing with **BCrypt**
-- Protected API endpoints using **Spring Security**
+## Authentication & Security
 
-### Product Management
-- Create and manage products
-- Product pricing and stock handling
-- Products organized into categories
+* User registration
+* Secure login using **JWT authentication**
+* Password hashing with **BCrypt**
+* Protected API endpoints using **Spring Security**
 
-### Category System
-- Category hierarchy
-- Products assigned to categories
+## Product Management
 
-### Orders
-- Create orders containing multiple products
-- Order items with quantities
-- Order status updates
+* Create and manage products
+* Product pricing and stock handling
+* Products organized into categories
 
-### Payment System
-- Payment processing implemented using the **Strategy Pattern**
-- Support for multiple payment methods
+## Category System
 
-### Backend Architecture
-- Clean layered architecture
-- RESTful API design
-- DTO-based request handling
-- PostgreSQL database integration
+* Categories group related products
+* Products assigned to categories
+
+## Shopping Cart
+
+* Add products to cart
+* Update product quantities
+* View cart contents
+
+## Checkout & Orders
+
+* Convert cart into an order
+* Orders contain multiple order items
+* Order status tracking
+
+## Payment System
+
+* Payment processing using the **Strategy Pattern**
+* Support for multiple payment methods
+* Payment persistence and status tracking
+
+## Backend Architecture
+
+* Clean layered architecture
+* RESTful API design
+* DTO-based request/response handling
+* PostgreSQL database integration
 
 ---
 
@@ -55,24 +69,33 @@ Controller → Service → Repository → Database
 ```
 
 ### Controller
-Handles incoming HTTP requests and responses.
+
+Handles HTTP requests and responses.
 
 ### Service
+
 Contains business logic such as:
-- Order creation
-- Payment processing
-- Product management
+
+* Cart management
+* Order creation
+* Checkout process
+* Payment processing
+* Product management
 
 ### Repository
-Handles database operations using **Spring Data JPA**.
+
+Handles database access using **Spring Data JPA**.
 
 ### Entity
-Represents database tables.
+
+Represents database tables and relationships.
 
 ### DTO
-Used for request and response objects.
+
+Request and response objects for API communication.
 
 ### Security Layer
+
 Handles authentication and authorization using **JWT and Spring Security**.
 
 ---
@@ -87,29 +110,35 @@ config
 
 controller
  ├── AuthController
- ├── ProductController
+ ├── CartController
+ ├── CategoryController
+ ├── CheckoutController
  ├── OrderController
  ├── PaymentController
- ├── CategoryController
- └── TestController
+ └── ProductController
 
 dto
+ ├── AddToCartRequest
  ├── CardPaymentRequest
+ ├── CartItemResponse
+ ├── CartResponse
  ├── LoginRequest
- ├── OrderItemRequest
- ├── OrderRequest
  ├── PaymentRequest
  ├── PaymentResult
- ├── PayPalPaymentRequest
+ ├── PaypalPaymentRequest
  ├── ProductRequest
  ├── ProductResponse
  └── RegistrationRequest
 
 entity
+ ├── Cart
+ ├── CartItem
  ├── Category
  ├── Order
  ├── OrderItem
  ├── OrderStatus
+ ├── Payment
+ ├── PaymentStatus
  ├── Product
  ├── Role
  └── User
@@ -117,25 +146,32 @@ entity
 payment
  ├── PaymentStrategy
  ├── CardPaymentStrategy
- └── PayPalPaymentStrategy
+ └── PaypalPaymentStrategy
 
 repository
+ ├── CartItemRepository
+ ├── CartRepository
  ├── CategoryRepository
  ├── OrderItemRepository
  ├── OrderRepository
+ ├── PaymentRepository
  ├── ProductRepository
  └── UserRepository
 
+security
+ ├── JwtAuthenticationFilter
+ └── JwtService
+
 service
+ ├── CartService
  ├── CategoryService
+ ├── CheckoutService
  ├── OrderService
  ├── PaymentService
  └── ProductService
-
-security
- ├── JwtService
- └── JwtAuthenticationFilter
 ```
+
+---
 
 # Domain Model
 
@@ -145,20 +181,54 @@ Core entities in the system:
 Category
  └── Product
 
+Cart
+ └── CartItem
+      └── Product
+
 Order
  └── OrderItem
       └── Product
 
 User
+ ├── Cart
  └── Order
+
+Order
+ └── Payment
 ```
 
-### Relationships
+---
 
-- A **Category** contains multiple **Products**
-- An **Order** contains multiple **OrderItems**
-- Each **OrderItem** references a **Product**
-- A **User** can create multiple **Orders**
+# Checkout Flow
+
+The checkout process follows this sequence:
+
+```
+Add Product to Cart
+        ↓
+View Cart
+        ↓
+Checkout
+        ↓
+Create Order
+        ↓
+Process Payment
+        ↓
+Update Order Status
+        ↓
+Clear Cart
+```
+
+---
+
+# Order Status
+
+```
+ PENDING
+ PAID
+ FAILED
+ CANCELLED
+```
 
 ---
 
@@ -169,38 +239,12 @@ Payment processing is implemented using the **Strategy Pattern**.
 ```
 PaymentStrategy
  ├── CardPaymentStrategy
- └── PayPalPaymentStrategy
+ └── PaypalPaymentStrategy
 ```
 
-The system dynamically selects the correct payment strategy depending on the payment type.
+The correct payment strategy is selected dynamically based on the payment type.
 
 This allows new payment methods to be added without modifying existing business logic.
-
----
-
-# Order Flow
-
-Typical order workflow:
-
-```
-Create Products
-      ↓
-Create Order
-      ↓
-Add Order Items
-      ↓
-Process Payment
-      ↓
-Update Order Status
-```
-
-### Order Status
-
-```
-CREATED
-PAID
-FAILED
-```
 
 ---
 
@@ -228,21 +272,21 @@ Authorization: Bearer <jwt_token>
 
 # Tech Stack
 
-- Java 21
-- Spring Boot
-- Spring Security
-- JWT (JSON Web Tokens)
-- Spring Web
-- Spring Data JPA
-- PostgreSQL
-- Maven
-- Jackson
+* Java 21
+* Spring Boot
+* Spring Security
+* JWT (JSON Web Tokens)
+* Spring Web
+* Spring Data JPA
+* PostgreSQL
+* Maven
+* Jackson
 
 ---
 
 # Example API Endpoints
 
-### Register User
+## Register User
 
 ```
 POST /api/auth/register
@@ -260,7 +304,7 @@ Example request:
 
 ---
 
-### Login
+## Login
 
 ```
 POST /api/auth/login
@@ -270,7 +314,7 @@ Returns a JWT token.
 
 ---
 
-### Get Products
+## Get Products
 
 ```
 GET /api/products
@@ -280,36 +324,43 @@ Requires authentication.
 
 ---
 
-### Create Order
+## Add Item to Cart
 
 ```
-POST /orders
+POST /api/cart/add
 ```
 
 Example request:
 
 ```json
 {
-  "items": [
-    { "productId": 1, "quantity": 2 },
-    { "productId": 2, "quantity": 1 }
-  ]
+  "productId": 1,
+  "quantity": 2
 }
 ```
 
 ---
 
-### Pay Order with Card
+## Checkout
 
 ```
-POST /orders/{orderId}/pay/card
+POST /checkout
+```
+
+Creates an order from the cart.
+
+---
+
+## Pay Order with Card
+
+```
+POST /orders/{orderId}/card
 ```
 
 Example request:
 
 ```json
 {
-  "amount": 2480,
   "cardNumber": "12345678",
   "cvv": "123",
   "expiry": "12/26"
@@ -318,17 +369,16 @@ Example request:
 
 ---
 
-### Pay Order with PayPal
+## Pay Order with PayPal
 
 ```
-POST /orders/{orderId}/pay/paypal
+POST /orders/{orderId}/paypal
 ```
 
 Example request:
 
 ```json
 {
-  "amount": 2480,
   "email": "test@paypal.com"
 }
 ```
@@ -371,12 +421,13 @@ http://localhost:8080
 
 This project was built to practice:
 
-- Spring Boot backend development
-- REST API design
-- JWT authentication
-- Database modeling with JPA
-- Layered architecture
-- Design patterns in backend systems
+* Spring Boot backend development
+* REST API design
+* JWT authentication
+* Database modeling with JPA
+* Layered architecture
+* Strategy design pattern
+* Backend system design
 
 ---
 
@@ -384,13 +435,12 @@ This project was built to practice:
 
 Possible extensions for the project:
 
-- Shopping cart functionality
-- Product search and filtering
-- Pagination
-- Global exception handling
-- API documentation with **Swagger / OpenAPI**
-- Payment transaction persistence
-- Role-based authorization (ADMIN / CUSTOMER)
+* Product search and filtering
+* Pagination
+* Global exception handling
+* API documentation with **Swagger / OpenAPI**
+* Payment gateway integration (Stripe / PayPal API)
+* Order history and tracking
 
 ---
 
