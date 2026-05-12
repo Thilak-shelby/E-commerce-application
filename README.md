@@ -98,6 +98,8 @@ dto
  ├── LoginRequest
  ├── OrderItemRequest
  ├── OrderRequest
+ ├── PaymentCallbackRequest
+ ├── PaymentInitiationRequest
  ├── PaymentRequest
  ├── PaymentResult
  ├── PayPalPaymentRequest
@@ -177,6 +179,101 @@ The system dynamically selects the correct payment strategy depending on the pay
 This allows new payment methods to be added without modifying existing business logic.
 
 ---
+# Payment Workflow
+
+The payment system models a simplified asynchronous commerce payment workflow.
+
+A payment is first initiated and stored with a `PENDING` status.  
+The final payment result is then handled asynchronously through a callback endpoint.
+
+## Workflow
+
+```text
+Create Order
+      ↓
+Initiate Payment
+      ↓
+Create Payment Record
+      ↓
+Generate Transaction ID
+      ↓
+Payment Status = PENDING
+      ↓
+External Payment Processing (Simulated)
+      ↓
+Payment Callback Received
+      ↓
+Update Payment Status
+      ↓
+Update Order Status
+```
+
+---
+
+## Payment States
+
+```text
+PENDING
+SUCCESS
+FAILED
+```
+
+---
+
+## Transaction Tracking
+
+Each payment is assigned a unique transaction ID.
+
+Example:
+
+```text
+TXN-17470393
+```
+
+The transaction ID is used to:
+- Track payment requests
+- Correlate payment callbacks
+- Update payment and order states asynchronously
+
+---
+
+## Callback Processing
+
+The system exposes a callback endpoint that simulates how external payment providers communicate payment results back to the backend.
+
+Example callback flow:
+
+```text
+Payment Provider
+      ↓
+POST /api/payments/callback
+      ↓
+Locate Payment by Transaction ID
+      ↓
+Update Payment Status
+      ↓
+Update Order Status
+```
+
+---
+
+## Order & Payment State Separation
+
+The project models order state and payment state separately to better represent real transactional commerce systems.
+
+Example:
+
+| Order Status | Payment Status |
+|---|---|
+| CREATED | PENDING |
+| PAID | SUCCESS |
+| FAILED | FAILED |
+
+This separation allows more realistic handling of:
+- Asynchronous payment processing
+- Payment retries
+- Transaction tracking
+- External payment-provider integration
 
 # Order Flow
 
