@@ -1,9 +1,9 @@
 package com.example.e_commerce.payment;
 
 import com.example.e_commerce.dto.PaymentRequest;
-import com.example.e_commerce.dto.PaymentResult;
+import com.example.e_commerce.dto.PaymentInitiationResponse;
 
 public interface PaymentStrategy {
 
-    PaymentResult pay(PaymentRequest request);
+    PaymentInitiationResponse pay(PaymentRequest request);
 }

@@ -1,9 +1,11 @@
 package com.example.e_commerce.controller;
 
 import com.example.e_commerce.dto.CardPaymentRequest;
+import com.example.e_commerce.dto.PaymentCallbackRequest;
 import com.example.e_commerce.dto.PaypalPaymentRequest;
-import com.example.e_commerce.dto.PaymentResult;
+import com.example.e_commerce.dto.PaymentInitiationResponse;
 import com.example.e_commerce.service.PaymentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,7 +19,7 @@ public class PaymentController {
     }
 
     @PostMapping("/orders/{orderId}/card")
-    public PaymentResult payWithCard(
+    public PaymentInitiationResponse payWithCard(
             @PathVariable Long orderId,
             @RequestBody CardPaymentRequest request) {
 
@@ -25,10 +27,19 @@ public class PaymentController {
     }
 
     @PostMapping("/orders/{orderId}/paypal")
-    public PaymentResult payWithPaypal(
+    public PaymentInitiationResponse payWithPaypal(
             @PathVariable Long orderId,
             @RequestBody PaypalPaymentRequest request) {
 
         return paymentService.processPayment(orderId, "PAYPAL", request);
+    }
+
+    @PostMapping("/callback")
+    public ResponseEntity<String> paymentCallback(
+            @RequestBody PaymentCallbackRequest request) {
+
+        paymentService.handlePaymentCallback(request);
+
+        return ResponseEntity.ok("Callback processed successfully");
     }
 }

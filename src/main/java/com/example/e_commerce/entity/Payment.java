@@ -19,37 +19,53 @@ public class Payment {
 
     private LocalDateTime createdAt;
 
+    private String transactionId;
+
     @OneToOne
     @JoinColumn(name = "order_id")
     private Order order;
 
     protected Payment() {}
 
-    public Payment(Order order, double amount, String paymentMethod) {
+    public Payment(Order order, double amount, String paymentMethod, String transactionID) {
         this.order = order;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
         this.status = PaymentStatus.PENDING;
         this.createdAt = LocalDateTime.now();
+        this.transactionId = transactionID;
     }
 
     public Long getId() {
+
         return id;
     }
 
     public double getAmount() {
+
         return amount;
     }
 
     public PaymentStatus getStatus() {
+
         return status;
     }
 
     public void setStatus(PaymentStatus status) {
+
         this.status = status;
     }
 
     public Order getOrder() {
+
         return order;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 }
